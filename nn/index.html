@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Object Detection</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Real-Time Object Detection</h1>
+
+    <div class="video-container">
+        <img id="videoStream" src="http://127.0.0.1:5000/video_feed" alt="Video Stream">
+    </div>
+
+    <p id="result">Detected Object: <span></span></p>
+    <button onclick="fetchDetection()">Detect Object</button>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
