@@ -3,110 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Language Recognition</title>
+    <title>Blind Assist Object Detection</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
             background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        h1 {
+            color: #333;
         }
         .btn {
-            display: block;
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            font-size: 16px;
-            background: #007BFF;
+            background-color: #007BFF;
             color: white;
             border: none;
+            padding: 15px 30px;
+            font-size: 20px;
             cursor: pointer;
             border-radius: 5px;
+            transition: background 0.3s;
         }
         .btn:hover {
-            background: #0056b3;
-        }
-        input[type="file"] {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-        }
-        /* Responsive Styles */
-        @media (max-width: 600px) {
-            .container {
-                width: 90%;
-                padding: 15px;
-            }
-            .btn {
-                font-size: 14px;
-            }
+            background-color: #0056b3;
         }
     </style>
+    <script>
+        function startDetection() {
+            fetch('http://127.0.0.1:5000/start_detection')
+                .then(response => response.json())
+                .then(data => alert(data.message))
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Sign Language Recognition</h1>
-
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% if category == 'success' %}
-                        <p style="color: green;">{{ message }}</p>
-                    {% else %}
-                        <p style="color: red;">{{ message }}</p>
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <!-- Train Model Button -->
-        <form action="/train" method="post">
-            <button type="submit" class="btn">Train Model</button>
-        </form>
-
-        <!-- Upload Image for Recognition -->
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="file" required>
-            <button type="submit" class="btn">Upload & Recognize</button>
-        </form>
-
-        <!-- Open Camera for Live Detection -->
-        <button id="openCameraBtn" class="btn" aria-label="Open camera for sign language detection">📷 Open Camera</button>
-
-        <!-- Video Stream (Hidden by Default) -->
-        <div id="cameraContainer" style="display: none; margin-top: 20px;">
-            <video id="videoElement" width="100%" autoplay></video>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById("openCameraBtn").addEventListener("click", function() {
-            let cameraContainer = document.getElementById("cameraContainer");
-            let video = document.getElementById("videoElement");
-
-            if (navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then(function(stream) {
-                        video.srcObject = stream;
-                        cameraContainer.style.display = "block";
-                    })
-                    .catch(function(error) {
-                        alert("Error accessing camera: " + error.message);
-                    });
-            } else {
-                alert("Your browser does not support camera access.");
-            }
-        });
-    </script>
+    <h1>Object Detection for Blind Users</h1>
+    <button class="btn" onclick="startDetection()">Start Detection</button>
 </body>
 </html>
