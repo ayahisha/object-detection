@@ -3,64 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blind Assist Object Detection</title>
+    <title>Object Detection</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            text-align: center;
-            padding: 30px;
-        }
-        h1 {
-            color: #333;
-        }
-        .btn {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 20px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background 0.3s;
-            margin: 10px;
-        }
-        .btn:hover {
-            background-color: #0056b3;
-        }
-        #video-container {
-            margin-top: 20px;
-        }
-        #video-frame {
-            width: 640px;
-            height: 480px;
-            border: 2px solid black;
-        }
+        body { text-align: center; font-family: Arial, sans-serif; }
+        video { width: 70%; border: 2px solid green; }
+        canvas { display: none; }
+        button { padding: 10px 15px; font-size: 16px; margin: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>Object Detection for Blind Users</h1>
-    <button class="btn" onclick="startDetection()">Start Detection</button>
-    <button class="btn" onclick="stopDetection()" style="background-color: red;">Stop Detection</button>
 
-    <div id="video-container">
-        <img id="video-frame" src="" alt="Video Stream">
-    </div>
+    <h1>Real-Time Object Detection</h1>
+    <video id="video" autoplay></video>
+    <canvas id="canvas"></canvas>
+    
+    <p id="result">Detected Object: None</p>
+    
+    <button onclick="startDetection()">Start Detection</button>
+    <button onclick="stopDetection()">Stop Detection</button>
 
     <script>
-        function startDetection() {
-            document.getElementById("video-frame").src = "/video_feed";
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let resultText = document.getElementById('result');
+        let streamActive = false;
+
+        // Start video stream
+        async function startDetection() {
+            let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            streamActive = true;
+            detectObject();
         }
 
+        // Stop video stream
         function stopDetection() {
-            fetch('/stop_detection')
-                .then(response => response.json())
-                .then(data => {
-                    alert(data.message);
-                    document.getElementById("video-frame").src = "";
-                })
-                .catch(error => console.error('Error:', error));
+            let tracks = video.srcObject.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+            streamActive = false;
+            resultText.innerText = "Detection Stopped";
+        }
+
+        // Capture frame and send to server
+        async function detectObject() {
+            if (!streamActive) return;
+
+            let ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            let imageData = canvas.toDataURL('image/jpeg');
+            let response = await fetch('/detect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+
+            let data = await response.json();
+            resultText.innerText = "Detected Object: " + data.object;
+
+            setTimeout(detectObject, 1000); // Repeat detection every 1 second
         }
     </script>
+
 </body>
 </html>
